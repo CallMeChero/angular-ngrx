@@ -22,8 +22,6 @@ export class ProductEditComponent implements OnInit {
   pageTitle = 'Product Edit';
   errorMessage = '';
   productForm: FormGroup;
-
-  product: Product | null;
   sub: Subscription;
 
   // Use with the generic validation message class
