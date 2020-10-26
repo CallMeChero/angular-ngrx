@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { Product } from '../product';
 import { ProductService } from '../product.service';
@@ -12,6 +12,7 @@ import { NumberValidators } from '../../shared/number.validator';
 import * as ProductActions from '../state/product.actions';
 import { Store } from '@ngrx/store';
 import { getCurrentProduct, State } from '../state/product.reducer';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'pm-product-edit',
@@ -29,6 +30,7 @@ export class ProductEditComponent implements OnInit {
   displayMessage: { [key: string]: string } = {};
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
+  product$: Observable<Product>;
 
   constructor(
     private store: Store<State>, 
@@ -67,10 +69,9 @@ export class ProductEditComponent implements OnInit {
     });
 
     // Watch for changes to the currently selected product
-    // TODO: Unsubscribe
-    this.store.select(getCurrentProduct).subscribe(
+    this.product$ = this.store.select(getCurrentProduct).pipe(tap(
       currentProduct => this.displayProduct(currentProduct)
-    );
+    ));
 
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
@@ -85,9 +86,6 @@ export class ProductEditComponent implements OnInit {
   }
 
   displayProduct(product: Product | null): void {
-    // Set the local product property
-    this.product = product;
-
     if (product) {
       // Reset the form back to pristine
       this.productForm.reset();
